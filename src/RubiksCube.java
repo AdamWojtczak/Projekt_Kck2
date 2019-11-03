@@ -127,7 +127,7 @@ public class RubiksCube extends Application {
         //krecacy sie spodek w mikrofali
         Cylinder spodek = new Cylinder(300,10);
         spodek.setTranslateX(-150);
-        spodek.setTranslateY(560);
+        spodek.setTranslateY(550);
         spodek.setTranslateZ(500);
         spodek.setMaterial(material);
 
@@ -144,7 +144,7 @@ public class RubiksCube extends Application {
         button.setMaterial(phong7);
 
 
-        Group group = new Group( button, spodek, top, left, right, bot, back, front, cylinder, light, mikrofalowe);
+        Group group = new Group( spodek, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
 
         Scene scene = new Scene(
                 new StackPane(group),
@@ -174,25 +174,31 @@ public class RubiksCube extends Application {
             if(mouseOldX == me.getSceneX() && mouseOldY == me.getSceneY())
             {
                 //RotateTransition rt0 = new RotateTransition(Duration.millis(przekretlo_angle*1000),cylinder);
-                RotateTransition rt1 = new RotateTransition(Duration.millis(przekretlo_angle*1000),spodek);
+                RotateTransition rt1 = new RotateTransition(Duration.millis(przekretlo_angle*1000),group.getChildren().get(0));
                 //rt0.setAxis(new Point3D(0,0,1));
                 //rt0.setByAngle(przekretlo_angle);
                 rt1.setAxis(new Point3D(0,1,0));
                 rt1.setByAngle(przekretlo_angle*60);
 
+
                 if (!flaga)
                 {
+                    //zmiana koloru
                     phong7.setDiffuseColor(Color.RED);
                     button.setMaterial(phong7);
                     flaga = true;
 
+                    //przygotowanie muzyki
                     String musicFile = "C:\\Users\\Adam\\IdeaProjects\\Projekt_Kck\\src\\mmm.mp3";
                     Media sound = new Media(new File(musicFile).toURI().toString());
                     MediaPlayer mediaPlayer = new MediaPlayer(sound);
                     mediaPlayer.play();
 
+                    //wlaczenie rotatetransition
                     rt1.play();
                     MediaPlayer finalMediaPlayer = mediaPlayer;
+
+                    //na koniec wykonywania rotate transition wroc przekretlo do stanu poczatkowego + wylacz muzyke
                     rt1.setOnFinished(ae -> {
                         for (int i = 0; i < przekretlo_angle && przekretlo_angle >= 0; i ++)
                         {
@@ -201,6 +207,8 @@ public class RubiksCube extends Application {
                             przekretlo_angle = przekretlo_angle - 1;
                         }
                         finalMediaPlayer.stop();
+                        phong7.setDiffuseColor(Color.LIMEGREEN);
+                        button.setMaterial(phong7);
                     });
 
                 }
