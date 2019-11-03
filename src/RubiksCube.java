@@ -13,6 +13,8 @@ import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
@@ -171,10 +173,10 @@ public class RubiksCube extends Application {
         scene.setOnMousePressed(me -> {
             if(mouseOldX == me.getSceneX() && mouseOldY == me.getSceneY())
             {
-                RotateTransition rt0 = new RotateTransition(Duration.millis(przekretlo_angle*1000),cylinder);
+                //RotateTransition rt0 = new RotateTransition(Duration.millis(przekretlo_angle*1000),cylinder);
                 RotateTransition rt1 = new RotateTransition(Duration.millis(przekretlo_angle*1000),spodek);
                 //rt0.setAxis(new Point3D(0,0,1));
-                rt0.setByAngle(przekretlo_angle);
+                //rt0.setByAngle(przekretlo_angle);
                 rt1.setAxis(new Point3D(0,1,0));
                 rt1.setByAngle(przekretlo_angle*60);
 
@@ -184,36 +186,22 @@ public class RubiksCube extends Application {
                     button.setMaterial(phong7);
                     flaga = true;
 
-                    /*File mmm = new File("C:\\Users\\Adam\\IdeaProjects\\Projekt_Kck\\src\\mmmwav.wav");
-                    try {
-                        AudioInputStream ais = AudioSystem.getAudioInputStream(mmm);
-                        Clip clip = AudioSystem.getClip();
-                        clip.open(ais);
+                    String musicFile = "C:\\Users\\Adam\\IdeaProjects\\Projekt_Kck\\src\\mmm.mp3";
+                    Media sound = new Media(new File(musicFile).toURI().toString());
+                    MediaPlayer mediaPlayer = new MediaPlayer(sound);
+                    mediaPlayer.play();
 
-                        Thread thread1 = new Thread(new Runnable() {
-                            @Override
-                            public void run(){
-                                clip.start();
-                                System.out.println("mmmmmmmmmm");
-                                try {
-                                    wait(przekretlo_angle*1000);
-                                    System.out.println("mmmmmmmmmm");
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                clip.stop();
-                            }
-                        });
-
-                        thread1.start();
-                      } catch (UnsupportedAudioFileException e) {
-                        e.printStackTrace();
-                    } catch (IOException | LineUnavailableException e) {
-                        e.printStackTrace();
-                    }                      */
-
-                    rt0.play();
                     rt1.play();
+                    MediaPlayer finalMediaPlayer = mediaPlayer;
+                    rt1.setOnFinished(ae -> {
+                        for (int i = 0; i < przekretlo_angle && przekretlo_angle >= 0; i ++)
+                        {
+                            Rotate rt0 = new Rotate(-10, 0, 0, 0, Rotate.Y_AXIS);
+                            cylinder.getTransforms().add(rt0);
+                            przekretlo_angle = przekretlo_angle - 1;
+                        }
+                        finalMediaPlayer.stop();
+                    });
 
                 }
                 else
@@ -221,7 +209,6 @@ public class RubiksCube extends Application {
                     phong7.setDiffuseColor(Color.LIMEGREEN);
                     button.setMaterial(phong7);
                     flaga = false;
-                    rt0.pause();
                     rt1.pause();
                 }
             }
