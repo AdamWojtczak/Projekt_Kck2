@@ -1,4 +1,6 @@
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimerTask;
@@ -21,6 +23,8 @@ import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import javafx.animation.RotateTransition;
 import javafx.util.Duration;
+
+import javax.sound.sampled.*;
 
 /**
  * Simple implementation of the Rubik's cube using JavaFX 3D
@@ -180,8 +184,37 @@ public class RubiksCube extends Application {
                     button.setMaterial(phong7);
                     flaga = true;
 
+                    /*File mmm = new File("C:\\Users\\Adam\\IdeaProjects\\Projekt_Kck\\src\\mmmwav.wav");
+                    try {
+                        AudioInputStream ais = AudioSystem.getAudioInputStream(mmm);
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(ais);
+
+                        Thread thread1 = new Thread(new Runnable() {
+                            @Override
+                            public void run(){
+                                clip.start();
+                                System.out.println("mmmmmmmmmm");
+                                try {
+                                    wait(przekretlo_angle*1000);
+                                    System.out.println("mmmmmmmmmm");
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                clip.stop();
+                            }
+                        });
+
+                        thread1.start();
+                      } catch (UnsupportedAudioFileException e) {
+                        e.printStackTrace();
+                    } catch (IOException | LineUnavailableException e) {
+                        e.printStackTrace();
+                    }                      */
+
                     rt0.play();
                     rt1.play();
+
                 }
                 else
                 {
