@@ -1,10 +1,13 @@
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Application;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
@@ -30,17 +33,84 @@ public class RubiksCube extends Application {
     private double mousePosY;
     private double mouseOldX;
     private double mouseOldY;
-    public boolean flaga = true;
+    private int przekretlo_angle = 0;
+    private boolean flaga = false;
 
 
-    private Group buildScene() {
-        Box earth = new Box(1000,600,100);
-        earth.setTranslateX(0);
-        earth.setTranslateY(0);
+    @Override
+    public void start(Stage primaryStage) {
+        //Swiatlo na calosc
+        PointLight light = new PointLight(Color.WHITE);
+        light.setTranslateX(50);
+        light.setTranslateY(-300);
+        light.setTranslateZ(-400);
 
+        //swiatlo w srodku mikrofali
+        PointLight mikrofalowe = new PointLight(Color.SALMON);
+        mikrofalowe.setTranslateX(350);
+        mikrofalowe.setTranslateY(300);
+        mikrofalowe.setTranslateZ(300);
+
+        //calosc 1050 650 1000 0 0 500
+        //Robienie klockow do mikrofali
+        //top 1050 50 1000 spawn 0 0 500
+        Box top = new Box(1050,50,1000);
+        top.setTranslateX(0);
+        top.setTranslateY(0);
+        top.setTranslateZ(500);
+        PhongMaterial phong = new PhongMaterial();
+        phong.setDiffuseColor(Color.ORANGE);
+        top.setMaterial(phong);
+
+        //bot 1050 50 1000 spawn 0 600 500
+        Box bot = new Box(1050,50,1000);
+        bot.setTranslateX(0);
+        bot.setTranslateY(600);
+        bot.setTranslateZ(500);
+        PhongMaterial phong2 = new PhongMaterial();
+        phong2.setDiffuseColor(Color.WHEAT);
+        bot.setMaterial(phong2);
+
+        //left 650 50 1000 spawn 0 0
+        Box left = new Box(50,650,1000);
+        left.setTranslateX(-500);
+        left.setTranslateY(300);
+        left.setTranslateZ(500);
+        PhongMaterial phong3 = new PhongMaterial();
+        phong3.setDiffuseColor(Color.SKYBLUE);
+        left.setMaterial(phong3);
+
+        //right 650 50 1000 spawn 1000 0
+        Box right = new Box(50,650,1000);
+        right.setTranslateX(500);
+        right.setTranslateY(300);
+        right.setTranslateZ(500);
+        PhongMaterial phong4 = new PhongMaterial();
+        phong4.setDiffuseColor(Color.OLIVE);
+        right.setMaterial(phong4);
+
+        //back 1050 650 1000
+        Box back = new Box(1050,650,50);
+        back.setTranslateX(0);
+        back.setTranslateY(300);
+        back.setTranslateZ(1000);
+        PhongMaterial phong5 = new PhongMaterial();
+        phong5.setDiffuseColor(Color.BROWN);
+        back.setMaterial(phong5);
+
+        //front 1050 650 1000
+        Box front = new Box(300,650,1025);
+        front.setTranslateX(350);
+        front.setTranslateY(300);
+        front.setTranslateZ(500);
+        PhongMaterial phong6 = new PhongMaterial();
+        phong6.setDiffuseColor(Color.VIOLET);
+        back.setMaterial(phong6);
+
+        //przkretlo
         Cylinder cylinder = new Cylinder(100,100);
-        cylinder.setTranslateX(400);
-        cylinder.setTranslateY(200);
+        cylinder.setTranslateX(350);
+        cylinder.setTranslateY(400);
         cylinder.setTranslateZ(-50);
         cylinder.setRotationAxis(new Point3D(1,0,0));
         cylinder.setRotate(90);
@@ -48,22 +118,28 @@ public class RubiksCube extends Application {
         material.setDiffuseMap(new Image(getClass().getResourceAsStream("metal-texture.jpg")));
         cylinder.setMaterial(material);
 
-
-        return new Group(earth,cylinder);
-    }
-    @Override
-    public void start(Stage primaryStage) {
-        PointLight light = new PointLight(Color.WHITE);
-        light.setTranslateX(50);
-        light.setTranslateY(-300);
-        light.setTranslateZ(-400);
-        PointLight light2 = new PointLight(Color.color(0.6, 0.3, 0.4));
-        light2.setTranslateX(400);
-        light2.setTranslateY(0);
-        light2.setTranslateZ(-400);
+        //krecacy sie spodek w mikrofali
+        Cylinder spodek = new Cylinder(300,10);
+        spodek.setTranslateX(-150);
+        spodek.setTranslateY(560);
+        spodek.setTranslateZ(500);
+        spodek.setMaterial(material);
 
 
-        Group group = buildScene();
+        //przycisk
+        Cylinder button = new Cylinder(10,30);
+        button.setTranslateX(360);
+        button.setTranslateY(200);
+        button.setTranslateZ(-50);
+        button.setRotationAxis(new Point3D(1,0,0));
+        button.setRotate(90);
+        PhongMaterial phong7 = new PhongMaterial();
+        phong7.setDiffuseColor(Color.LIMEGREEN);
+        button.setMaterial(phong7);
+
+
+        Group group = new Group( button, spodek, top, left, right, bot, back, front, cylinder, light, mikrofalowe);
+
         Scene scene = new Scene(
                 new StackPane(group),
                 650, 650,
@@ -73,69 +149,84 @@ public class RubiksCube extends Application {
 
         scene.setFill(Color.rgb(10, 10, 40));
 
-        scene.setCamera(new PerspectiveCamera());
+        PerspectiveCamera camera = new PerspectiveCamera();
+        camera.setTranslateZ(-2000);
+        scene.setCamera(camera);
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        AmbientLight ambientLight = new AmbientLight(Color.color(0.2, 0.2, 0.2));
+
+        Rotate rotateX = new Rotate(30, 0, 0, 0, Rotate.X_AXIS);
+        Rotate rotateY = new Rotate(20, 0, 0, 0, Rotate.Y_AXIS);
+        //cylinder.setRotationAxis(new Point3D(0,0,1));
+
+       group.getTransforms().addAll(rotateX,rotateY);
+
 
 
         scene.setOnMousePressed(me -> {
-            mouseOldX = me.getSceneX();
+            if(mouseOldX == me.getSceneX() && mouseOldY == me.getSceneY())
+            {
+                RotateTransition rt0 = new RotateTransition(Duration.millis(przekretlo_angle*1000),cylinder);
+                RotateTransition rt1 = new RotateTransition(Duration.millis(przekretlo_angle*1000),spodek);
+                //rt0.setAxis(new Point3D(0,0,1));
+                rt0.setByAngle(przekretlo_angle);
+                rt1.setAxis(new Point3D(0,1,0));
+                rt1.setByAngle(przekretlo_angle*60);
+
+                if (!flaga)
+                {
+                    phong7.setDiffuseColor(Color.RED);
+                    button.setMaterial(phong7);
+                    flaga = true;
+
+                    rt0.play();
+                    rt1.play();
+                }
+                else
+                {
+                    phong7.setDiffuseColor(Color.LIMEGREEN);
+                    button.setMaterial(phong7);
+                    flaga = false;
+                    rt0.pause();
+                    rt1.pause();
+                }
+            }
+
             mouseOldY = me.getSceneY();
+            mouseOldX = me.getSceneX();
+
         });
-        if (flaga == true)
-        {
-            Rotate rotateX = new Rotate(30, 0, 0, 0, Rotate.X_AXIS);
-            Rotate rotateY = new Rotate(20, 0, 0, 0, Rotate.Y_AXIS);
 
-            group.getTransforms().addAll(rotateX,rotateY);
-
-            scene.setOnMouseDragged(me -> {
-                mousePosX = me.getSceneX();
-                mousePosY = me.getSceneY();
-                rotateX.setAngle(rotateX.getAngle()-(mousePosY - mouseOldY));
-                rotateY.setAngle(rotateY.getAngle()+(mousePosX - mouseOldX));
-
-                mouseOldX = mousePosX;
-                mouseOldY = mousePosY;
-            });
-        }
-        else
-        {
-            scene.setOnMouseDragged(mouseEvent ->{
-                Rotate ro = new Rotate(30, 0, 0, 0, Rotate.X_AXIS);
-                Rotate ro1 = new Rotate(30, 0, 0, 0, Rotate.Y_AXIS);
-
-                group.getChildren().get(1).setRotationAxis(new Point3D(400,200,0));
-                group.getChildren().get(1).getTransforms().addAll(ro,ro1);
-
-                mousePosX = mouseEvent.getSceneX();
-                mousePosY = mouseEvent.getSceneY();
-                ro.setAngle(ro.getAngle()-(mousePosY - mouseOldY));
-                ro1.setAngle(ro1.getAngle()+(mousePosX - mouseOldX));
-
-                mouseOldX = mousePosX;
-                mouseOldY = mousePosY;
-            });
-        }
-
-
+        scene.setOnMouseDragged(me -> {
+            mousePosX = me.getSceneX();
+            mousePosY = me.getSceneY();
+            rotateX.setAngle(rotateX.getAngle()-(mousePosY - mouseOldY));
+            rotateY.setAngle(rotateY.getAngle()+(mousePosX - mouseOldX));
+            mouseOldX = mousePosX;
+            mouseOldY = mousePosY;
+        });
         scene.setOnKeyPressed(event ->{
                     KeyCode keyCode = event.getCode();
 
                     if(keyCode.equals(KeyCode.W))
                     {
-                        flaga = true;
-                        System.out.println("Flaga jest true");
+                        Rotate rt0 = new Rotate(10, 0, 0, 0, Rotate.Y_AXIS);
+                        cylinder.getTransforms().add(rt0);
+                        przekretlo_angle = przekretlo_angle + 1;
                     }
-                    if(keyCode.equals(KeyCode.A))
+                    if(keyCode.equals(KeyCode.Q))
                     {
-                        flaga = false;
-                        System.out.println("Flaga jest false");
+                        Rotate rt0 = new Rotate(-10, 0, 0, 0, Rotate.Y_AXIS);
+                        cylinder.getTransforms().add(rt0);
+                        przekretlo_angle = przekretlo_angle - 1;
                     }
                 }
         );
+
+
+
+
 
         primaryStage.setTitle("KcK");
         primaryStage.setScene(scene);
