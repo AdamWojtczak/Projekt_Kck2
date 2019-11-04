@@ -52,6 +52,8 @@ public class RubiksCube extends Application {
         light.setTranslateZ(-400);
 
         //swiatlo w srodku mikrofali
+        //TODO: to swiatlo jest teoretycznie w mikrofali i dziala, plan jet taki zeby sie wlaczalo podczas wlaczenie animacji
+        //zeby ustawic najlatwiej wylaczyc swiatlo 'light' i zostawic tylko to
         PointLight mikrofalowe = new PointLight(Color.SALMON);
         mikrofalowe.setTranslateX(350);
         mikrofalowe.setTranslateY(300);
@@ -113,6 +115,16 @@ public class RubiksCube extends Application {
         phong6.setDiffuseColor(Color.VIOLET);
         back.setMaterial(phong6);
 
+        //drzwiczki 750 650 5
+        //TODO: zrobic to na przezroczyste tak zeby imitowalo drzwiczki
+        Box drzwiczki = new Box(750,650,5);
+        //drzwiczki.setTranslateX(-100);
+        //drzwiczki.setTranslateY(300);
+        //PhongMaterial phong8 = new PhongMaterial();
+        //phong8.setDiffuseColor(Color.SILVER);
+        //drzwiczki.setMaterial(phong6);
+
+
         //przkretlo
         Cylinder cylinder = new Cylinder(100,100);
         cylinder.setTranslateX(350);
@@ -144,7 +156,7 @@ public class RubiksCube extends Application {
         button.setMaterial(phong7);
 
 
-        Group group = new Group( spodek, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
+        Group group = new Group( spodek, drzwiczki, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
 
         Scene scene = new Scene(
                 new StackPane(group),
@@ -155,6 +167,7 @@ public class RubiksCube extends Application {
 
         scene.setFill(Color.rgb(10, 10, 40));
 
+        //TODO: moze to kamera sie rusza podczas rotatetransition, jak cos to jest tutaj v
         PerspectiveCamera camera = new PerspectiveCamera();
         camera.setTranslateZ(-2000);
         scene.setCamera(camera);
@@ -174,7 +187,7 @@ public class RubiksCube extends Application {
             if(mouseOldX == me.getSceneX() && mouseOldY == me.getSceneY())
             {
                 //RotateTransition rt0 = new RotateTransition(Duration.millis(przekretlo_angle*1000),cylinder);
-                RotateTransition rt1 = new RotateTransition(Duration.millis(przekretlo_angle*1000),group.getChildren().get(0));
+                RotateTransition rt1 = new RotateTransition(Duration.millis(przekretlo_angle*1000),spodek);
                 //rt0.setAxis(new Point3D(0,0,1));
                 //rt0.setByAngle(przekretlo_angle);
                 rt1.setAxis(new Point3D(0,1,0));
@@ -210,6 +223,8 @@ public class RubiksCube extends Application {
                         phong7.setDiffuseColor(Color.LIMEGREEN);
                         button.setMaterial(phong7);
                     });
+
+                    //TODO: odtworzyc dzwiek beep.mp3, problem z odtworzeniem calego
 
                 }
                 else
