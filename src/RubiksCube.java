@@ -1,18 +1,23 @@
 
+import java.awt.*;
 import java.io.File;
+
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Label;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Application;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
@@ -39,9 +44,13 @@ public class RubiksCube extends Application {
     private double mousePosY;
     private double mouseOldX;
     private double mouseOldY;
+    private int rozmiar_wyswietlacza=9;
     private int przekretlo_angle = 0;
     private boolean flaga = false;
-    //Hallo Hallo w morde dajo
+    public Text text;
+    public int aktualnyCzas=0;
+    public Timer timer=new Timer();
+    private boolean gotowe=false;
 
     @Override
     public void start(Stage primaryStage) {
@@ -115,15 +124,21 @@ public class RubiksCube extends Application {
         phong6.setDiffuseColor(Color.VIOLET);
         back.setMaterial(phong6);
 
+
+
+
+
+
         //drzwiczki 750 650 5
         //TODO: zrobic to na przezroczyste tak zeby imitowalo drzwiczki
-        Box drzwiczki = new Box(750,650,5);
+      //  Box drzwiczki = new Box(750,650,5);
         //drzwiczki.setTranslateX(-100);
         //drzwiczki.setTranslateY(300);
         //PhongMaterial phong8 = new PhongMaterial();
         //phong8.setDiffuseColor(Color.SILVER);
         //drzwiczki.setMaterial(phong6);
 
+        //
 
         //przkretlo
         Cylinder cylinder = new Cylinder(100,100);
@@ -145,7 +160,7 @@ public class RubiksCube extends Application {
 
 
         //przycisk
-        Cylinder button = new Cylinder(10,30);
+        Cylinder button = new Cylinder(20,30);
         button.setTranslateX(360);
         button.setTranslateY(200);
         button.setTranslateZ(-50);
@@ -155,8 +170,27 @@ public class RubiksCube extends Application {
         phong7.setDiffuseColor(Color.LIMEGREEN);
         button.setMaterial(phong7);
 
+
+        Button but=new Button("*");
+        BorderPane bp=new BorderPane();
+        bp.setTranslateZ(-100);
+        bp.setTranslateX(290);
+        bp.setTranslateY(-50);
+        bp.setTop(but);
+
+        text = new Text();
+        text.setText(" 0:00 ");
+        text.setStyle("-fx-font-size: 60;");
+        text.setCache(true);
+        BorderPane borderPane = new BorderPane();
+        borderPane.setTranslateZ(-50);
+        borderPane.setTranslateX(290);
+        borderPane.setStyle("-fx-border-color: black;-fx-background-color: #66CCFF;");
+        borderPane.setTop(text);
+
         //gdybys cos dodawal to tutaj musisz wpisac wszystkie obiekty 3D + swiatla
-        Group group = new Group( spodek, drzwiczki, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
+//        Group group = new Group( spodek, drzwiczki, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
+        Group group = new Group( borderPane,spodek,  button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
 
 
         Scene scene = new Scene(
@@ -167,8 +201,9 @@ public class RubiksCube extends Application {
         );
 
         scene.setFill(Color.rgb(10, 10, 40));
-
+       // ((Pane) scene.getRoot()).getChildren().add(subScene.getRoot());
         //TODO: moze to kamera sie rusza podczas rotatetransition, jak cos to jest tutaj v
+
         PerspectiveCamera camera = new PerspectiveCamera();
         camera.setTranslateZ(-2000);
         scene.setCamera(camera);
@@ -183,11 +218,8 @@ public class RubiksCube extends Application {
        group.getTransforms().addAll(rotateX,rotateY);
 
 
-
-        scene.setOnMousePressed(me -> {
-            if(mouseOldX == me.getSceneX() && mouseOldY == me.getSceneY())
-            {
-                //RotateTransition rt0 = new RotateTransition(Duration.millis(przekretlo_angle*1000),cylinder);
+       button.setOnMouseClicked(mouseEvent -> {
+            RotateTransition rt0 = new RotateTransition(Duration.millis(przekretlo_angle*1000),cylinder);
                 RotateTransition rt1 = new RotateTransition(Duration.millis(przekretlo_angle*1000),spodek);
                 //rt0.setAxis(new Point3D(0,0,1));
                 //rt0.setByAngle(przekretlo_angle);
@@ -208,6 +240,33 @@ public class RubiksCube extends Application {
                     MediaPlayer mediaPlayer = new MediaPlayer(sound);
                     mediaPlayer.play();
 
+
+                    Runnable runnable=new Runnable() {
+                        @Override
+                        public void run() {
+                            aktualnyCzas=przekretlo_angle;
+                            TimerTask update = new TimerTask() {
+                                @Override
+                                public void run() {
+                                    text.setText(print(aktualnyCzas));
+                                }
+                            };
+                            TimerTask x=new TimerTask() {
+                                @Override
+                                public void run() {
+                                    Platform.runLater(update);
+                                    aktualnyCzas--;
+                                }
+                            };
+                            timer.schedule(x,1000,1000);
+                            long start=System.currentTimeMillis(), koniec=start+(1000*przekretlo_angle);
+                            while (aktualnyCzas>0);
+                            timer.cancel();
+                            text.setText(" 0:00 ");
+                            gotowe=true;
+                        }
+                    };
+                    runnable.run();
                     //wlaczenie rotatetransition
                     rt1.play();
                     MediaPlayer finalMediaPlayer = mediaPlayer;
@@ -216,8 +275,8 @@ public class RubiksCube extends Application {
                     rt1.setOnFinished(ae -> {
                         for (int i = 0; i < przekretlo_angle && przekretlo_angle >= 0; i ++)
                         {
-                            Rotate rt0 = new Rotate(-10, 0, 0, 0, Rotate.Y_AXIS);
-                            cylinder.getTransforms().add(rt0);
+                            Rotate rt2 = new Rotate(-10, 0, 0, 0, Rotate.Y_AXIS);
+                            cylinder.getTransforms().add(rt2);
                             przekretlo_angle = przekretlo_angle - 1;
                         }
                         finalMediaPlayer.stop();
@@ -226,31 +285,83 @@ public class RubiksCube extends Application {
                     });
 
                     //TODO: odtworzyc dzwiek beep.mp3, problem z odtworzeniem calego
-
                 }
-                else
+                if(gotowe)
                 {
                     phong7.setDiffuseColor(Color.LIMEGREEN);
                     button.setMaterial(phong7);
                     flaga = false;
                     rt1.pause();
                 }
-            }
-
-            mouseOldY = me.getSceneY();
-            mouseOldX = me.getSceneX();
-
         });
+
+//        scene.setOnMousePressed(me -> {
+//            if(mouseOldX == me.getSceneX() && mouseOldY == me.getSceneY())
+//            {
+//                //RotateTransition rt0 = new RotateTransition(Duration.millis(przekretlo_angle*1000),cylinder);
+//                RotateTransition rt1 = new RotateTransition(Duration.millis(przekretlo_angle*1000),spodek);
+//                //rt0.setAxis(new Point3D(0,0,1));
+//                //rt0.setByAngle(przekretlo_angle);
+//                rt1.setAxis(new Point3D(0,1,0));
+//                rt1.setByAngle(przekretlo_angle*60);
+//
+//
+//                if (!flaga) //flaga sprawdza czy przycisk jest wcisniety
+//                {
+//                    //zmiana koloru
+//                    phong7.setDiffuseColor(Color.RED);
+//                    button.setMaterial(phong7);
+//                    flaga = true;
+//
+//                    //przygotowanie muzyki
+//                    String musicFile = "C:\\Users\\Adam\\IdeaProjects\\Projekt_Kck\\src\\mmm.mp3";
+//                    Media sound = new Media(new File(musicFile).toURI().toString());
+//                    MediaPlayer mediaPlayer = new MediaPlayer(sound);
+//                    mediaPlayer.play();
+//
+//                    //wlaczenie rotatetransition
+//                    rt1.play();
+//                    MediaPlayer finalMediaPlayer = mediaPlayer;
+//
+//                    //na koniec wykonywania rotate transition wroc przekretlo do stanu poczatkowego + wylacz muzyke
+//                    rt1.setOnFinished(ae -> {
+//                        for (int i = 0; i < przekretlo_angle && przekretlo_angle >= 0; i ++)
+//                        {
+//                            Rotate rt0 = new Rotate(-10, 0, 0, 0, Rotate.Y_AXIS);
+//                            cylinder.getTransforms().add(rt0);
+//                            przekretlo_angle = przekretlo_angle - 1;
+//                        }
+//                        finalMediaPlayer.stop();
+//                        phong7.setDiffuseColor(Color.LIMEGREEN);
+//                        button.setMaterial(phong7);
+//                    });
+//
+//                    //TODO: odtworzyc dzwiek beep.mp3, problem z odtworzeniem calego
+//
+//                }
+//                else
+//                {
+//                    phong7.setDiffuseColor(Color.LIMEGREEN);
+//                    button.setMaterial(phong7);
+//                    flaga = false;
+//                    rt1.pause();
+//                }
+//            }
+//
+//            mouseOldY = me.getSceneY();
+//            mouseOldX = me.getSceneX();
+//
+//        });
 
         //stare obracanie z rubikscube
-        scene.setOnMouseDragged(me -> {
-            mousePosX = me.getSceneX();
-            mousePosY = me.getSceneY();
-            rotateX.setAngle(rotateX.getAngle()-(mousePosY - mouseOldY));
-            rotateY.setAngle(rotateY.getAngle()+(mousePosX - mouseOldX));
-            mouseOldX = mousePosX;
-            mouseOldY = mousePosY;
-        });
+//        scene.setOnMouseDragged(me -> {
+//            mousePosX = me.getSceneX();
+//            mousePosY = me.getSceneY();
+//            rotateX.setAngle(rotateX.getAngle()-(mousePosY - mouseOldY));
+//            rotateY.setAngle(rotateY.getAngle()+(mousePosX - mouseOldX));
+//            mouseOldX = mousePosX;
+//            mouseOldY = mousePosY;
+//        });
 
         //press W nakreca pokretlo, press Q odkreca (o 10 stopni)
         scene.setOnKeyPressed(event ->{
@@ -260,26 +371,62 @@ public class RubiksCube extends Application {
                     {
                         Rotate rt0 = new Rotate(10, 0, 0, 0, Rotate.Y_AXIS);
                         cylinder.getTransforms().add(rt0);
-                        przekretlo_angle = przekretlo_angle + 1;
+
+                        if(przekretlo_angle<240) {
+                            przekretlo_angle = przekretlo_angle + 1;
+                        }
+                        text.setText(print(przekretlo_angle));
+
                     }
                     if(keyCode.equals(KeyCode.Q))
                     {
                         Rotate rt0 = new Rotate(-10, 0, 0, 0, Rotate.Y_AXIS);
                         cylinder.getTransforms().add(rt0);
-                        przekretlo_angle = przekretlo_angle - 1;
+                        if(przekretlo_angle>0)
+                            przekretlo_angle = przekretlo_angle - 1;
+                        text.setText(print(przekretlo_angle));
                     }
                 }
         );
-
-
-
-
 
         primaryStage.setTitle("KcK");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-
+    public void wyswietlanie(int time) {
+        aktualnyCzas=time;
+        TimerTask update = new TimerTask() {
+            @Override
+            public void run() {
+                text.setText(print(aktualnyCzas));
+            }
+        };
+        TimerTask x=new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(update);
+                aktualnyCzas--;
+            }
+        };
+        timer.schedule(x,1000,1000);
+        long start=System.currentTimeMillis(), koniec=start+(1000*time);
+        while (aktualnyCzas>0);
+        timer.cancel();
+        text.setText(" ".repeat(rozmiar_wyswietlacza));
+    }
+    public String print(int time){
+        String zwrot=((Integer) time).toString();
+        Integer minuty=time/60, sekundy=time%60;
+        String z=" "+minuty.toString()+":";
+        if(sekundy==0){
+            z=z+"0";
+        }
+        else if(sekundy<10){
+            z=z+"0";
+        }
+        z=z+sekundy;
+        return z+" ";
+    }
     public static void main(String[] args) {
         launch(args);
     }
