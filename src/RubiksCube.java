@@ -54,7 +54,7 @@ public class RubiksCube extends Application {
         //swiatlo w srodku mikrofali
         //TODO: to swiatlo jest teoretycznie w mikrofali i dziala, plan jet taki zeby sie wlaczalo podczas wlaczenie animacji
         //zeby ustawic najlatwiej wylaczyc swiatlo 'light' i zostawic tylko to
-        PointLight mikrofalowe = new PointLight(Color.SALMON);
+        PointLight mikrofalowe = new PointLight(Color.rgb( 0, 0 ,0));
         mikrofalowe.setTranslateX(350);
         mikrofalowe.setTranslateY(300);
         mikrofalowe.setTranslateZ(300);
@@ -135,13 +135,6 @@ public class RubiksCube extends Application {
         phong9.setDiffuseColor(Color.BLACK);  // Note alpha of 0.6
         wyswietlacz.setMaterial(phong9);
 
-        //wyswietlacz tekst
-        Text t = new Text ( "This:is");
-        t.setText("This is a text sample");
-        t.setFont(Font.font ("Verdana", 20));
-        t.setFill(Color.RED);
-        wyswietlacz.toFront();
-
         //przkretlo
         Cylinder cylinder = new Cylinder(100,100);
         cylinder.setTranslateX(350);
@@ -172,8 +165,12 @@ public class RubiksCube extends Application {
         phong7.setDiffuseColor(Color.LIMEGREEN);
         button.setMaterial(phong7);
 
+        //SRODEK
+        Sphere kulka = new Sphere(10,10);
+
+
         //gdybys cos dodawal to tutaj musisz wpisac wszystkie obiekty 3D + swiatla
-        Group group = new Group( spodek, wyswietlacz, drzwiczki, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
+        Group group = new Group( spodek, kulka, wyswietlacz, drzwiczki, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
 
 
         Scene scene = new Scene(
@@ -226,6 +223,7 @@ public class RubiksCube extends Application {
                     mediaPlayer.play();
 
                     //wlaczenie rotatetransition
+                    mikrofalowe.setColor(Color.SALMON);
                     rt1.play();
                     MediaPlayer finalMediaPlayer = mediaPlayer;
 
@@ -240,6 +238,7 @@ public class RubiksCube extends Application {
                         finalMediaPlayer.stop();
                         phong7.setDiffuseColor(Color.LIMEGREEN);
                         button.setMaterial(phong7);
+                        mikrofalowe.setColor(Color.BLACK);
                     });
 
                     //TODO: odtworzyc dzwiek beep.mp3, problem z odtworzeniem calego
@@ -284,6 +283,15 @@ public class RubiksCube extends Application {
                         Rotate rt0 = new Rotate(-10, 0, 0, 0, Rotate.Y_AXIS);
                         cylinder.getTransforms().add(rt0);
                         przekretlo_angle = przekretlo_angle - 1;
+                    }
+                    if (keyCode.equals(KeyCode.E))
+                    {
+
+                        RotateTransition rt0 = new RotateTransition(Duration.millis(1000),drzwiczki);
+                        rt0.setAxis(new Point3D(0,1,0));
+                        rt0.setByAngle(120);
+                        drzwiczki.setRotationAxis(new Point3D(0,-1000,0));
+                        rt0.play();
                     }
                 }
         );
