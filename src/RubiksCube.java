@@ -113,17 +113,34 @@ public class RubiksCube extends Application {
         front.setTranslateZ(500);
         PhongMaterial phong6 = new PhongMaterial();
         phong6.setDiffuseColor(Color.VIOLET);
-        back.setMaterial(phong6);
+        front.setMaterial(phong6);
 
         //drzwiczki 750 650 5
         //TODO: zrobic to na przezroczyste tak zeby imitowalo drzwiczki
         Box drzwiczki = new Box(750,650,5);
-        //drzwiczki.setTranslateX(-100);
-        //drzwiczki.setTranslateY(300);
-        //PhongMaterial phong8 = new PhongMaterial();
+        drzwiczki.setTranslateX(-100);
+        drzwiczki.setTranslateY(300);
+        PhongMaterial phong8 = new PhongMaterial();
         //phong8.setDiffuseColor(Color.SILVER);
-        //drzwiczki.setMaterial(phong6);
+        phong8.setDiffuseColor(new Color(1,1,1,0.6));  // Note alpha of 0.6
+        phong8.diffuseMapProperty();
+        drzwiczki.setMaterial(phong8);
 
+        //wyswietlacz
+        Box  wyswietlacz = new Box(200,100,5);
+        wyswietlacz.setTranslateX(350);
+        wyswietlacz.setTranslateY(100);
+        wyswietlacz.setTranslateZ(-15);
+        PhongMaterial phong9 = new PhongMaterial();
+        phong9.setDiffuseColor(Color.BLACK);  // Note alpha of 0.6
+        wyswietlacz.setMaterial(phong9);
+
+        //wyswietlacz tekst
+        Text t = new Text ( "This:is");
+        t.setText("This is a text sample");
+        t.setFont(Font.font ("Verdana", 20));
+        t.setFill(Color.RED);
+        wyswietlacz.toFront();
 
         //przkretlo
         Cylinder cylinder = new Cylinder(100,100);
@@ -148,7 +165,7 @@ public class RubiksCube extends Application {
         Cylinder button = new Cylinder(10,30);
         button.setTranslateX(360);
         button.setTranslateY(200);
-        button.setTranslateZ(-50);
+        //button.setTranslateZ(0);
         button.setRotationAxis(new Point3D(1,0,0));
         button.setRotate(90);
         PhongMaterial phong7 = new PhongMaterial();
@@ -156,7 +173,7 @@ public class RubiksCube extends Application {
         button.setMaterial(phong7);
 
         //gdybys cos dodawal to tutaj musisz wpisac wszystkie obiekty 3D + swiatla
-        Group group = new Group( spodek, drzwiczki, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
+        Group group = new Group( spodek, wyswietlacz, drzwiczki, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
 
 
         Scene scene = new Scene(
