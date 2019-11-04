@@ -41,7 +41,7 @@ public class RubiksCube extends Application {
     private double mouseOldY;
     private int przekretlo_angle = 0;
     private boolean flaga = false;
-
+    //Hallo Hallo w morde dajo
 
     @Override
     public void start(Stage primaryStage) {
