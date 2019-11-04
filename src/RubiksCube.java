@@ -63,7 +63,7 @@ public class RubiksCube extends Application {
         //swiatlo w srodku mikrofali
         //TODO: to swiatlo jest teoretycznie w mikrofali i dziala, plan jet taki zeby sie wlaczalo podczas wlaczenie animacji
         //zeby ustawic najlatwiej wylaczyc swiatlo 'light' i zostawic tylko to
-        PointLight mikrofalowe = new PointLight(Color.SALMON);
+        PointLight mikrofalowe = new PointLight(Color.rgb(0,0,0));
         mikrofalowe.setTranslateX(350);
         mikrofalowe.setTranslateY(300);
         mikrofalowe.setTranslateZ(300);
@@ -125,20 +125,14 @@ public class RubiksCube extends Application {
         back.setMaterial(phong6);
 
 
-
-
-
-
-        //drzwiczki 750 650 5
-        //TODO: zrobic to na przezroczyste tak zeby imitowalo drzwiczki
-      //  Box drzwiczki = new Box(750,650,5);
-        //drzwiczki.setTranslateX(-100);
-        //drzwiczki.setTranslateY(300);
-        //PhongMaterial phong8 = new PhongMaterial();
+        Box drzwiczki = new Box(750,650,5);
+        drzwiczki.setTranslateX(-100);
+        drzwiczki.setTranslateY(300);
+        PhongMaterial phong8 = new PhongMaterial();
         //phong8.setDiffuseColor(Color.SILVER);
-        //drzwiczki.setMaterial(phong6);
-
-        //
+        phong8.setDiffuseColor(new Color(1,1,1,0.6));  // Note alpha of 0.6
+        phong8.diffuseMapProperty();
+        drzwiczki.setMaterial(phong8);
 
         //przkretlo
         Cylinder cylinder = new Cylinder(100,100);
@@ -181,10 +175,11 @@ public class RubiksCube extends Application {
         borderPane.setTranslateX(290);
         borderPane.setStyle("-fx-border-color: black;-fx-background-color: #66CCFF;");
         borderPane.setTop(text);
-
+        Sphere kulka = new Sphere(10,10);
         //gdybys cos dodawal to tutaj musisz wpisac wszystkie obiekty 3D + swiatla
 //        Group group = new Group( spodek, drzwiczki, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
-        Group group = new Group( borderPane,spodek,  button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
+       // Group group = new Group( borderPane,spodek,  button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
+        Group group = new Group( borderPane,spodek, kulka, drzwiczki, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
 
 
         Scene scene = new Scene(
@@ -212,11 +207,8 @@ public class RubiksCube extends Application {
        group.getTransforms().addAll(rotateX,rotateY);
 
 
-       scene.setOnMouseClicked(mouseEvent -> {
-           RotateTransition rt0 = new RotateTransition(Duration.millis(przekretlo_angle*1000),cylinder);
+       scene.setOnMouseClicked(me -> {
                 RotateTransition rt1 = new RotateTransition(Duration.millis(przekretlo_angle*1000),spodek);
-                //rt0.setAxis(new Point3D(0,0,1));
-                //rt0.setByAngle(przekretlo_angle);
                 rt1.setAxis(new Point3D(0,1,0));
                 rt1.setByAngle(przekretlo_angle*60);
 
@@ -227,7 +219,7 @@ public class RubiksCube extends Application {
                     phong7.setDiffuseColor(Color.RED);
                     button.setMaterial(phong7);
                     flaga = true;
-
+                    mikrofalowe.setColor(Color.SALMON);
                     //przygotowanie muzyki
                     String musicFile = "C:\\Users\\Adam\\IdeaProjects\\Projekt_Kck\\src\\mmm.mp3";
                     //Media sound = new Media(new File(musicFile).toURI().toString());
@@ -242,22 +234,21 @@ public class RubiksCube extends Application {
                             TimerTask update = new TimerTask() {
                                 @Override
                                 public void run() {
-                                    System.out.println("kupa4");
                                     text.setText(print(aktualnyCzas));
                                 }
                             };
                             TimerTask x=new TimerTask() {
                                 @Override
                                 public void run() {
-                                    System.out.println("kupa3");
+
                                     Platform.runLater(update);
                                     aktualnyCzas--;
                                 }
                             };
-                            System.out.println("kupa5");
+
                             timer.schedule(x,1000,1000);
                             long start=System.currentTimeMillis(), koniec=start+(1000*przekretlo_angle);
-                            System.out.println("kupa6");
+
                             while (aktualnyCzas>0){
                                 try{
                                 Thread.sleep(50);
@@ -268,8 +259,6 @@ public class RubiksCube extends Application {
                             }
                             timer.cancel();
                             timer=new Timer();
-                            System.out.println("elo");
-                            //timer.purge();
                             text.setText(" 0:00 ");
                             gotowe=true;
                                 phong7.setDiffuseColor(Color.LIMEGREEN);
@@ -278,6 +267,7 @@ public class RubiksCube extends Application {
                                 przekretlo_angle=0;
                                 rt1.pause();
                                 gotowe=false;
+                                mikrofalowe.setColor(Color.BLACK);
                         }
                     };
                     runnable.start();
@@ -309,7 +299,10 @@ public class RubiksCube extends Application {
 //                    rt1.pause();
 //                    gotowe=false;
 //                }
-        });
+           mouseOldY = me.getSceneY();
+           mouseOldX = me.getSceneX();
+
+       });
 
 //        scene.setOnMousePressed(me -> {
 //            if(mouseOldX == me.getSceneX() && mouseOldY == me.getSceneY())
@@ -380,6 +373,14 @@ public class RubiksCube extends Application {
 //        });
 
         //press W nakreca pokretlo, press Q odkreca (o 10 stopni)
+        scene.setOnMouseDragged(me -> {
+            mousePosX = me.getSceneX();
+            mousePosY = me.getSceneY();
+            rotateX.setAngle(rotateX.getAngle()-(mousePosY - mouseOldY));
+            rotateY.setAngle(rotateY.getAngle()+(mousePosX - mouseOldX));
+            mouseOldX = mousePosX;
+            mouseOldY = mousePosY;
+        });
         scene.setOnKeyPressed(event ->{
                     KeyCode keyCode = event.getCode();
 
