@@ -155,8 +155,9 @@ public class RubiksCube extends Application {
         phong7.setDiffuseColor(Color.LIMEGREEN);
         button.setMaterial(phong7);
 
-
+        //gdybys cos dodawal to tutaj musisz wpisac wszystkie obiekty 3D + swiatla
         Group group = new Group( spodek, drzwiczki, button , top, left, right, bot, back, front, cylinder, light, mikrofalowe);
+
 
         Scene scene = new Scene(
                 new StackPane(group),
@@ -194,7 +195,7 @@ public class RubiksCube extends Application {
                 rt1.setByAngle(przekretlo_angle*60);
 
 
-                if (!flaga)
+                if (!flaga) //flaga sprawdza czy przycisk jest wcisniety
                 {
                     //zmiana koloru
                     phong7.setDiffuseColor(Color.RED);
@@ -241,6 +242,7 @@ public class RubiksCube extends Application {
 
         });
 
+        //stare obracanie z rubikscube
         scene.setOnMouseDragged(me -> {
             mousePosX = me.getSceneX();
             mousePosY = me.getSceneY();
@@ -249,6 +251,8 @@ public class RubiksCube extends Application {
             mouseOldX = mousePosX;
             mouseOldY = mousePosY;
         });
+
+        //press W nakreca pokretlo, press Q odkreca (o 10 stopni)
         scene.setOnKeyPressed(event ->{
                     KeyCode keyCode = event.getCode();
 
